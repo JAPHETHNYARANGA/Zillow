@@ -1,0 +1,36 @@
+# Use the official PHP image with the desired PHP version
+FROM php:8.3-fpm
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    zip \
+    git \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql
+
+# Set working directory
+WORKDIR /var/www
+
+# Copy composer.lock and composer.json
+COPY ./backend/composer.json ./backend/composer.lock /var/www/
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install dependencies
+RUN composer install --no-scripts --no-autoloader
+
+# Copy the rest of the application
+COPY ./backend /var/www
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www
+
+# Expose port
+EXPOSE 9000
+
+# Command to run PHP-FPM
+CMD ["php-fpm"]

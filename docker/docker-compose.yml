@@ -1,0 +1,56 @@
+version: '3.7'
+
+services:
+  # Laravel backend
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: laravel-backend
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    networks:
+      - app-network
+    ports:
+      - "9000:9000"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=your_database
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+
+  # Angular frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: angular-frontend
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  # MySQL database (Laravel's default)
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: your_database
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+    ports:
+      - "3306:3306"
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge
