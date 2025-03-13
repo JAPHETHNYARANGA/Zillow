@@ -28,6 +28,7 @@ This repository contains the full-stack application for the Zillow-like platform
 - Node.js and npm (for Angular frontend)
 - Docker (for containerized environment)
 
+---
 
 ## Setup
 
