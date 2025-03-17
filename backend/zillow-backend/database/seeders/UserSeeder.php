@@ -10,27 +10,30 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create an admin user
-        $admin = User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('admin123'),
-            'status' => 'active',
-        ]);
+        // Admin user
+        if (!User::where('email', 'admin@example.com')->exists()) {
+            $admin = User::create([
+                'name' => 'Admin User',
+                'email' => 'admin@example.com',
+                'password' => bcrypt('admin123'),
+                'status' => 'active',
+            ]);
 
-        // Assign admin role
-        $adminRole = Role::where('name', 'admin')->firstOrFail();
-        $admin->roles()->attach($adminRole);
+            $adminRole = Role::where('name', 'admin')->firstOrFail();
+            $admin->roles()->attach($adminRole);
+        }
 
-        // Optional: Create a sample broker user
-        $broker = User::create([
-            'name' => 'Test Broker',
-            'email' => 'broker@example.com',
-            'password' => bcrypt('password123'),
-            'status' => 'active',
-        ]);
+        // Broker user
+        if (!User::where('email', 'broker@example.com')->exists()) {
+            $broker = User::create([
+                'name' => 'Test Broker',
+                'email' => 'broker@example.com',
+                'password' => bcrypt('password123'),
+                'status' => 'active',
+            ]);
 
-        $brokerRole = Role::where('name', 'broker')->firstOrFail();
-        $broker->roles()->attach($brokerRole);
+            $brokerRole = Role::where('name', 'broker')->firstOrFail();
+            $broker->roles()->attach($brokerRole);
+        }
     }
 }
