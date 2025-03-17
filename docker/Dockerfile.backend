@@ -1,32 +1,44 @@
 FROM php:8.3-fpm
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
     zip \
+    unzip \
     git \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql
 
-# Set working directory
 WORKDIR /var/www
 
-# Copy composer files and install dependencies
-COPY composer.json composer.lock /var/www/
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Install composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copy composer files
+COPY composer.* ./
+
+# Install project dependencies
 RUN composer install --no-scripts --no-autoloader
 
-# Copy the rest of the application
-COPY . /var/www
+# Copy project files
+COPY . .
 
-# Set permissions (optional)
-RUN chown -R www-data:www-data /var/www
-RUN chmod -R 755 /var/www/storage
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 755 /var/www \
+    && chmod -R 777 /var/www/storage \
+    && chmod -R 777 /var/www/bootstrap/cache
 
-# Expose port (optional, since specified in docker-compose.yml)
+# Generate autoload files
+RUN composer dump-autoload --optimize
+
+# Cache configuration
+RUN php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
+
 EXPOSE 9000
 
-# Start PHP-FPM
 CMD ["php-fpm"]
