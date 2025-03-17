@@ -1,15 +1,14 @@
 version: '3.7'
 
 services:
-  # Laravel backend
   backend:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.backend
+      context: ../backend/zillow-backend
+      dockerfile: ../../docker/Dockerfile.backend
     container_name: laravel-backend
     working_dir: /var/www
     volumes:
-      - ./backend:/var/www
+      - ../backend/zillow-backend:/var/www
     networks:
       - app-network
     ports:
@@ -17,36 +16,38 @@ services:
     depends_on:
       - db
     environment:
+      - DB_CONNECTION=mysql
       - DB_HOST=db
       - DB_PORT=3306
-      - DB_DATABASE=your_database
+      - DB_DATABASE=zillow
       - DB_USERNAME=root
-      - DB_PASSWORD=root
+      - DB_PASSWORD=Okothbravon@2
 
-  # Angular frontend
   frontend:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.frontend
+      context: ../frontend/zillow-frontend
+      dockerfile: ../../docker/Dockerfile.frontend
     container_name: angular-frontend
+    
     ports:
       - "8080:8080"
     networks:
       - app-network
 
-  # MySQL database (Laravel's default)
+
   db:
     image: mysql:8.0
     container_name: mysql-db
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: your_database
+      MYSQL_ROOT_PASSWORD: Okothbravon@2
+      MYSQL_DATABASE: zillow
     volumes:
       - db_data:/var/lib/mysql
     networks:
       - app-network
     ports:
-      - "3306:3306"
+      - "3307:3306"
 
 volumes:
   db_data:
