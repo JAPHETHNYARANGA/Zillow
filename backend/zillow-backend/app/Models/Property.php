@@ -35,4 +35,11 @@ class Property extends Model
     {
         return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
     }
+
+
+    public function valuation()
+    {
+        return $this->hasOne(Valuation::class);
+    }
+
 }

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Property;
+use App\Models\SearchHistory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SearchController extends Controller
 {
@@ -40,19 +42,35 @@ class SearchController extends Controller
             $query->whereJsonContains('amenities', $amenities);
         }
 
-        // Geospatial search (within a radius, requires a geospatial DB like PostGIS or external API)
-        if ($request->has('latitude') && $request->has('longitude') && $request->has('radius')) {
-            $lat = $request->latitude;
-            $lon = $request->longitude;
-            $radius = $request->radius; // in kilometers
-            $query->whereRaw("ST_Distance_Sphere(
-                ST_MakePoint(longitude, latitude),
-                ST_MakePoint(?, ?)
-            ) <= ? * 1000", [$lon, $lat, $radius]);
+        // Geospatial search (requires PostGIS or similar)
+      //  if ($request->has('latitude') && $request->has('longitude') && $request->has('radius')) {
+        //    $lat = $request->latitude;
+          //  $lon = $request->longitude;
+            //$radius = $request->radius; // in kilometers
+           // $query->whereRaw("ST_Distance_Sphere(
+             //   ST_MakePoint(longitude, latitude),
+             //   ST_MakePoint(?, ?)
+           // ) <= ? * 1000", [$lon, $lat, $radius]);
+       // }
+
+        // Save search history for authenticated users
+        if (Auth::check()) {
+            SearchHistory::create([
+                'user_id' => Auth::id(),
+                'location' => $request->location,
+                'price_min' => $request->price_min,
+                'price_max' => $request->price_max,
+                'type' => $request->type,
+                'bedrooms' => $request->bedrooms,
+                'amenities' => $request->amenities ? explode(',', $request->amenities) : null,
+                'latitude' => $request->latitude,  // Optional, if migration updated
+                'longitude' => $request->longitude, // Optional
+                'radius' => $request->radius,      // Optional
+            ]);
         }
 
-        // Pagination
-        $properties = $query->with('user')->paginate(10);
+        // Load valuation relationship (for future Valuation module)
+        $properties = $query->with(['user', 'valuation'])->paginate(10);
 
         return response()->json([
             'properties' => $properties,
@@ -69,6 +87,7 @@ class SearchController extends Controller
                 'latitude' => $property->latitude,
                 'longitude' => $property->longitude,
                 'price' => $property->price,
+                'estimated_value' => $property->valuation ? $property->valuation->estimated_value : null, // Valuation integration
             ];
         });
     }

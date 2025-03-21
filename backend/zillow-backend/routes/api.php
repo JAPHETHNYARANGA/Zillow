@@ -16,4 +16,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('properties/{property}/promote', [PromotionController::class, 'destroy']);
     Route::get('search', [SearchController::class, 'search']);
     Route::get('neighborhood-insights', [SearchController::class, 'neighborhoodInsights']);
+   
 });

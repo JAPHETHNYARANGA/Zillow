@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('search_histories', function (Blueprint $table) {
@@ -20,13 +17,13 @@ return new class extends Migration
             $table->string('type')->nullable();
             $table->integer('bedrooms')->nullable();
             $table->json('amenities')->nullable();
+            $table->decimal('latitude', 10, 7)->nullable(); // Added
+            $table->decimal('longitude', 10, 7)->nullable(); // Added
+            $table->float('radius')->nullable(); // Added
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('search_histories');
