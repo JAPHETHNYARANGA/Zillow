@@ -1,17 +1,20 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
-// Public Routes (no CSRF)
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-// Protected Routes (Sanctum with CSRF if stateful)
-Route::middleware('sanctum')->group(function () {
-    Route::post('logout', [AuthController::class, 'logout']);
-    Route::get('user', function (Request $request) {
-        return $request->user()->load('roles');
-    })->middleware('auth:sanctum'); // Ensure auth
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('properties', PropertyController::class);
+    Route::post('properties/{property}/promote', [PromotionController::class, 'store']);
+    Route::delete('properties/{property}/promote', [PromotionController::class, 'destroy']);
+    Route::get('search', [SearchController::class, 'search']);
+    Route::get('neighborhood-insights', [SearchController::class, 'neighborhoodInsights']);
+   
 });

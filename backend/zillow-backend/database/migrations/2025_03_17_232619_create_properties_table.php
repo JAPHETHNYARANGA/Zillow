@@ -15,6 +15,7 @@ return new class extends Migration
             $table->text('description');
             $table->enum('type', ['house', 'apartment', 'condo', 'land', 'commercial'])->default('house');
             $table->enum('status', ['available', 'pending', 'sold', 'rented'])->default('available');
+            $table->enum('listing_type', ['sale', 'rent'])->default('sale');
             $table->decimal('price', 15, 2);
             $table->string('address');
             $table->string('city');
@@ -23,6 +24,14 @@ return new class extends Migration
             $table->integer('bedrooms')->nullable();
             $table->integer('bathrooms')->nullable();
             $table->integer('square_feet')->nullable();
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
+            $table->enum('furnished', ['Yes', 'No'])->default('No');
+            $table->integer('lease_term_months')->nullable();
+            $table->boolean('is_sponsored')->default(false);
+            $table->timestamp('sponsored_until')->nullable(); // Added from remote
+            $table->string('listing_status')->default('active'); // Added from remote
+            $table->json('amenities')->nullable();
             $table->json('images')->nullable();
             $table->timestamps();
             $table->softDeletes();
