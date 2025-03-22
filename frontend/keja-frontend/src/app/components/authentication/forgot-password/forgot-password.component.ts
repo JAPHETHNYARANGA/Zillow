@@ -1,19 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import AOS from 'aos';
+import { AuthenticationService } from 'src/app/services/authentication/authentication.service';
 
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.scss']
 })
-export class ForgotPasswordComponent implements OnInit{
-  constructor(private router:Router){}
+export class ForgotPasswordComponent {
+  email: string = '';
 
-  ngOnInit(): void {
-      AOS.init();
+  constructor(private authService: AuthenticationService, private router: Router) {}
+
+  submit() {
+    if (this.email) {
+      this.authService.forgotPassword(this.email).subscribe(
+        (response) => {
+          console.log('Password reset request sent', response);
+          this.router.navigate(['/login']);
+        },
+        (error) => {
+          console.error('Error sending password reset request', error);
+        }
+      );
+    }
   }
+
   navigateToLogin(){
-    this.router.navigate(['']);
+    this.router.navigate([''])
   }
 }

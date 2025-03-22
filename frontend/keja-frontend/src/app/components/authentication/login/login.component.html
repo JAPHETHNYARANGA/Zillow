@@ -1,24 +1,22 @@
 <div class="min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 flex justify-center items-center">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full sm:w-96" data-aos="fade-up">
       <h2 class="text-3xl font-semibold text-center text-gray-800 mb-6">Login</h2>
-      <form>
+      <form (ngSubmit)="login()">
         <div class="mb-4">
           <label for="email" class="block text-sm font-medium text-gray-600">Email</label>
-          <input id="email" type="email" placeholder="Enter your email" class="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <input id="email" type="email" [(ngModel)]="email" name="email" placeholder="Enter your email" class="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
         </div>
   
-        <!-- Password Field with Eye Icon -->
         <div class="mb-6 relative">
           <label for="password" class="block text-sm font-medium text-gray-600">Password</label>
-          <input id="password" [type]="isPasswordVisible ? 'text' : 'password'" placeholder="Enter your password" class="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <input id="password" [(ngModel)]="password" name="password" [type]="isPasswordVisible ? 'text' : 'password'" placeholder="Enter your password" class="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
           <button type="button" (click)="togglePasswordVisibility()" class="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <svg *ngIf="!isPasswordVisible" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-gray-600">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.41 4.59a10 10 0 00-14.82 14.82m4.88-4.88A6.978 6.978 0 0112 17a6.978 6.978 0 01-3.41-.88m1.58-4.64A6.978 6.978 0 0112 7a6.978 6.978 0 013.41.88m1.58 4.64A6.978 6.978 0 0112 7" />
+            <!-- Eye icon for showing password -->
+            <svg *ngIf="!isPasswordVisible" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-600">
+              <path d="M15 12c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"/>
             </svg>
-            <svg *ngIf="isPasswordVisible" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-gray-600">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5c-3.866 0-7 3.134-7 7 0 1.667.633 3.167 1.68 4.312l-1.352 1.352C4.207 17.566 4 15.88 4 14c0-5.523 4.477-10 10-10s10 4.477 10 10c0 1.88-.207 3.566-.328 4.664l-1.352-1.352C18.167 15.167 18 13.667 18 12c0-3.866-3.134-7-7-7z" />
+            <svg *ngIf="isPasswordVisible" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-600">
+              <path d="M15 12c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"/>
             </svg>
           </button>
         </div>
@@ -27,11 +25,11 @@
       </form>
   
       <div class="mt-4 text-center" (click)="navigateToForgotPass()">
-        <a  class="text-indigo-600 text-sm hover:underline">Forgot your password?</a>
+        <a class="text-indigo-600 text-sm hover:underline">Forgot your password?</a>
       </div>
   
       <div class="mt-4 text-center" (click)="navigateToRegister()">
-        <p class="text-sm">Don't have an account? <a  class="text-indigo-600 hover:underline">Sign up</a></p>
+        <p class="text-sm">Don't have an account? <a class="text-indigo-600 hover:underline">Sign up</a></p>
       </div>
     </div>
   </div>
