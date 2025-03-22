@@ -1,23 +1,67 @@
 <div class="min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 flex justify-center items-center">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full sm:w-96" data-aos="fade-up">
       <h2 class="text-3xl font-semibold text-center text-gray-800 mb-6">Create an Account</h2>
-      <form>
+      <form [formGroup]="registerForm!" (ngSubmit)="onSubmit()"> <!-- Use ! here -->
+        
+        <!-- Name Field -->
+        <div class="mb-4">
+          <label for="name" class="block text-sm font-medium text-gray-600">Name</label>
+          <input id="name" type="text" placeholder="Enter your full name" formControlName="name" 
+                 class="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <div *ngIf="registerForm!.controls['name'].invalid && registerForm!.controls['name'].touched" class="text-red-500 text-xs mt-1">
+            Name is required.
+          </div>
+        </div>
+  
+        <!-- Email Field -->
         <div class="mb-4">
           <label for="email" class="block text-sm font-medium text-gray-600">Email</label>
-          <input id="email" type="email" placeholder="Enter your email" class="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <input id="email" type="email" placeholder="Enter your email" formControlName="email" 
+                 class="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <div *ngIf="registerForm!.controls['email'].invalid && registerForm!.controls['email'].touched" class="text-red-500 text-xs mt-1">
+            A valid email is required.
+          </div>
         </div>
   
+        <!-- Password Field -->
         <div class="mb-4">
           <label for="password" class="block text-sm font-medium text-gray-600">Password</label>
-          <input id="password" type="password" placeholder="Enter your password" class="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <input id="password" type="password" placeholder="Enter your password" formControlName="password"
+                 class="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <div *ngIf="registerForm!.controls['password'].invalid && registerForm!.controls['password'].touched" class="text-red-500 text-xs mt-1">
+            Password must be at least 6 characters.
+          </div>
         </div>
   
+        <!-- Confirm Password Field -->
         <div class="mb-6">
           <label for="confirmPassword" class="block text-sm font-medium text-gray-600">Confirm Password</label>
-          <input id="confirmPassword" type="password" placeholder="Confirm your password" class="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <input id="confirmPassword" type="password" placeholder="Confirm your password" formControlName="confirmPassword" 
+                 class="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <div *ngIf="registerForm!.controls['confirmPassword'].invalid && registerForm!.controls['confirmPassword'].touched" class="text-red-500 text-xs mt-1">
+            Confirm password is required and must match the password.
+          </div>
         </div>
   
-        <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-all">Register</button>
+        <!-- Role Field -->
+        <div class="mb-4">
+          <label for="role" class="block text-sm font-medium text-gray-600">Role</label>
+          <select id="role" formControlName="role" class="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">Select Role</option>
+            <option value="buyer">Buyer</option>
+            <option value="homeowner">Homeowner</option>
+            <option value="sales agent">Sales Agent</option>
+            <option value="broker">Broker</option>
+            <option value="admin">Admin</option>
+          </select>
+          <div *ngIf="registerForm!.controls['role'].invalid && registerForm!.controls['role'].touched" class="text-red-500 text-xs mt-1">
+            Role is required.
+          </div>
+        </div>
+  
+        <button type="submit" [disabled]="registerForm!.invalid" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-all">
+          Register
+        </button>
       </form>
   
       <div class="mt-4 text-center" (click)="navigateToLogin()">
