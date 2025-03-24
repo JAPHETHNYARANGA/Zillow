@@ -25,7 +25,7 @@ services:
 
   frontend:
     build:
-      context: ../frontend/zillow-frontend
+      context: ../frontend/keja-frontend
       dockerfile: ../../docker/Dockerfile.frontend
     container_name: angular-frontend
     
