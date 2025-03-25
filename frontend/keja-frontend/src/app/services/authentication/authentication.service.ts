@@ -11,16 +11,16 @@ export class AuthenticationService {
 
   // Register user
   register(userData: any): Observable<any> {
-    return this.http.post('/api/register', userData); // Replace with your API endpoint
+    return this.http.post('http://127.0.0.1:8000/api/register', userData); // Replace with your API endpoint
   }
 
   // Login user
   login(email: string, password: string): Observable<any> {
-    return this.http.post('/api/login', { email, password }); // Replace with your API endpoint
+    return this.http.post('http://127.0.0.1:8000/api/login', { email, password }); // Replace with your API endpoint
   }
 
   // Forgot password request
   forgotPassword(email: string): Observable<any> {
-    return this.http.post('/api/forgot-password', { email }); // Replace with your API endpoint
+    return this.http.post('http://127.0.0.1:8000/api/forgot-password', { email }); // Replace with your API endpoint
   }
 }
