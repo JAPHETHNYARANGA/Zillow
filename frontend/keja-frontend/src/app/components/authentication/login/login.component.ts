@@ -30,7 +30,7 @@ export class LoginComponent implements OnInit {
       this.authService.login(this.email, this.password).subscribe(
         (response: any) => {
           console.log('Login successful', response);
-          this.router.navigate(['home']); // Navigate to a dashboard or homepage on successful login
+          this.router.navigate(['']); // Navigate to a dashboard or homepage on successful login
         },
         (error: any) => {
           console.error('Login error', error);

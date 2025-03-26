@@ -12,6 +12,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LoginComponent } from './components/authentication/login/login.component';
 import { HttpClientModule } from '@angular/common/http';
 import { HomepageComponent } from './components/home/homepage/homepage.component';
+import { PropertyDetailsComponent } from './components/home/property-details/property-details.component';
+
 
 @NgModule({
   declarations: [
@@ -21,7 +23,8 @@ import { HomepageComponent } from './components/home/homepage/homepage.component
     ForgotPasswordComponent,
     NavBarComponent,
     FooterComponent,
-    HomepageComponent
+    HomepageComponent,
+    PropertyDetailsComponent
   ],
   imports: [
     BrowserModule,
