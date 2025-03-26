@@ -6,23 +6,17 @@ import { PropertyService } from 'src/app/services/properties/property.service';
   templateUrl: './homepage.component.html',
   styleUrls: ['./homepage.component.scss']
 })
-export class HomepageComponent implements OnInit{
-
-
-  constructor(private propertyService: PropertyService){}
-
+export class HomepageComponent implements OnInit {
   properties: any[] = [];
   pagination: any = {};
   isLoading = true;
-
-  isModalOpen = false;  // To toggle modal visibility
+  isModalOpen = false;
   isLoggedIn = false;
   previewImages: { file: File, url: string }[] = [];
-
-  ngOnInit(): void {
-    this.checkLoginStatus(); 
-    this.loadProperties();
-  }
+  isSubmitting = false;
+  showNotification = false;
+  notificationMessage = '';
+  notificationType: 'success' | 'error' = 'success';
 
   newProperty: any = {
     title: '',
@@ -42,19 +36,55 @@ export class HomepageComponent implements OnInit{
     images: []
   };
 
-  checkLoginStatus() {
-    // Example logic to check login status
-    const user = localStorage.getItem('auth_token');  // Assuming login info is saved in localStorage
-    this.isLoggedIn = user !== null;  // If there is user data, the user is logged in
+  constructor(private propertyService: PropertyService) {}
+
+  ngOnInit(): void {
+    this.checkLoginStatus(); 
+    this.loadProperties();
   }
-  // Open the modal to create a new property
+
+  getImageUrl(images: string[] | undefined): string {
+    if (images && images.length > 0) {
+      return images[0];
+    }
+    return 'assets/property.svg';
+  }
+
+  handleImageError(event: any) {
+    event.target.src = 'assets/property.svg';
+  }
+
+  checkLoginStatus() {
+    const user = localStorage.getItem('auth_token');
+    this.isLoggedIn = user !== null;
+  }
+
+  loadProperties(page: number = 1): void {
+    this.isLoading = true;
+    this.propertyService.getProperties(page).subscribe({
+      next: (response) => {
+        this.properties = response.data;
+        this.pagination = {
+          currentPage: response.current_page,
+          lastPage: response.last_page,
+          total: response.total
+        };
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading properties:', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
   openModal() {
     this.isModalOpen = true;
   }
 
-  // Close the modal
   closeModal() {
     this.isModalOpen = false;
+    this.resetForm();
   }
 
   resetForm() {
@@ -98,72 +128,66 @@ export class HomepageComponent implements OnInit{
   removeImage(image: any) {
     this.previewImages = this.previewImages.filter(img => img.url !== image.url);
   }
-  // Create property logic
+
+  showNotificationMessage(message: string, type: 'success' | 'error') {
+    this.notificationMessage = message;
+    this.notificationType = type;
+    this.showNotification = true;
+    setTimeout(() => {
+      this.showNotification = false;
+    }, 5000);
+  }
+
   createProperty() {
-    
-    // Prepare FormData for file upload
+    // Form validation
+    if (!this.newProperty.title || !this.newProperty.description || 
+        !this.newProperty.type || !this.newProperty.listing_type ||
+        !this.newProperty.price || !this.newProperty.address ||
+        !this.newProperty.city || !this.newProperty.state ||
+        !this.newProperty.zip_code || !this.newProperty.furnished) {
+      this.showNotificationMessage('Please fill in all required fields', 'error');
+      return;
+    }
+
+    if (this.previewImages.length === 0) {
+      this.showNotificationMessage('Please upload at least one image', 'error');
+      return;
+    }
+
+    this.isSubmitting = true;
+
     const formData = new FormData();
     
-    // Add property data
     Object.keys(this.newProperty).forEach(key => {
       if (key !== 'images' && this.newProperty[key] !== null) {
         formData.append(key, this.newProperty[key]);
       }
     });
     
-    // Add images
     this.previewImages.forEach(image => {
       formData.append('images[]', image.file);
     });
     
-    this.propertyService.createProperty(formData).subscribe(
-      response => {
-        console.log('Property created successfully', response);
+    this.propertyService.createProperty(formData).subscribe({
+      next: (response) => {
+        this.isSubmitting = false;
+        this.showNotificationMessage('Property created successfully!', 'success');
         this.closeModal();
         this.loadProperties();
       },
-      error => {
+      error: (error) => {
+        this.isSubmitting = false;
+        this.showNotificationMessage('Error creating property. Please try again.', 'error');
         console.error('Error creating property', error);
       }
-    );
-    
-    console.log('Form data prepared:', formData);
-    this.closeModal();
+    });
   }
 
-
-  loadProperties(page: number = 1): void {
-    this.isLoading = true;
-    this.propertyService.getProperties(page).subscribe({
-      next: (response) => {
-        this.properties = response.data;
-        this.pagination = {
-          currentPage: response.current_page,
-          lastPage: response.last_page,
-          total: response.total
-        };
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading properties:', err);
-        this.isLoading = false;
-      }
-    });
+  formatPrice(price: string): string {
+    return `KSh ${parseFloat(price).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
   }
 
   onPageChange(page: number): void {
     this.loadProperties(page);
   }
-
-  // Helper function to format price
-  formatPrice(price: string): string {
-    return `KSh ${parseFloat(price).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-  }
-
-  // Helper function to get first image URL
-  getImageUrl(imagePath: string): string {
-    return imagePath 
-      ? `http://127.0.0.1:8000/storage/properties/${imagePath}`
-      : 'assets/property.svg';
-  }  
 }

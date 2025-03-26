@@ -50,8 +50,7 @@ class PropertyController extends Controller
      */
     public function store(Request $request)
     {
-        try{
-
+        try {
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
@@ -73,39 +72,50 @@ class PropertyController extends Controller
                 'images' => 'nullable|array',
                 'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
-    
+
             $user = Auth::user();
             if (!$user->hasAnyRole(['seller', 'agent', 'broker', 'homeowner','admin'])) {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
-    
-            $imagePaths = [];
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $image) {
-                    $path = $image->store('properties', 'public');
-                    $imagePaths[] = basename($path);
-                }
-            }
-            $validated['images'] = $imagePaths;
-    
-            $property = $user->properties()->create($validated);
-            $property->images = array_map(fn($image) => Storage::url('properties/' . $image), $property->images);
-            return response()->json($property, 201);
 
-        }catch (\Exception $e) {
-            Log::error('Login failed', [
+            // Initialize an array to hold image URLs
+        $imageUrls = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                // Store the image in the 'properties' directory in the public disk
+                $path = $image->store('properties', 'public');
+                
+                // Create a full URL to the image
+                $imageUrls[] = asset('storage/' . str_replace('public/', '', $path));
+            }
+        }
+
+        // Assign the URLs to the validated data
+        $validated['images'] = $imageUrls;
+
+        // Create the property and save it in the database
+        $property = $user->properties()->create($validated);
+        
+        return response()->json([
+            'property' => $property,
+            'message' => 'Property created successfully'
+        ], 201);
+
+        } catch (\Exception $e) {
+            Log::error('Error storing property', [
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
             ]);
 
             return response()->json([
-                'message' => 'An error occurred while logging in',
+                'message' => 'An error occurred while creating the property',
                 'error' => $e->getMessage(),
                 'status' => 'error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR); // 500
         }
-      
     }
+
+
 
     /**
      * Display the specified property.
@@ -172,25 +182,34 @@ class PropertyController extends Controller
         ]);
 
         if ($request->hasFile('images')) {
+            // Delete old images from storage if they exist
             if ($property->images) {
                 foreach ($property->images as $oldImage) {
-                    Storage::disk('public')->delete('properties/' . $oldImage);
+                    // Delete image file from public disk
+                    Storage::disk('public')->delete(str_replace(config('app.url') . '/storage/', '', $oldImage));
                 }
             }
-            $imagePaths = [];
+
+            // Initialize an array to hold image URLs
+            $imageUrls = [];
             foreach ($request->file('images') as $image) {
+                // Store the new image and get the path
                 $path = $image->store('properties', 'public');
-                $imagePaths[] = basename($path);
+                
+                // Create a symbolic URL to the image
+                $imageUrls[] = Storage::url($path);
             }
-            $validated['images'] = $imagePaths;
+            
+            // Assign the URLs to the validated data
+            $validated['images'] = $imageUrls;
         }
 
+        // Update the property
         $property->update($validated);
-        $property->images = $property->images
-            ? array_map(fn($image) => Storage::url('properties/' . $image), $property->images)
-            : [];
+        
         return response()->json($property);
     }
+
 
     /**
      * Remove the specified property from storage.

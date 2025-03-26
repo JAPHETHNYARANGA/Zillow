@@ -1,28 +1,46 @@
-
 <div class="spacer"></div>
 <div *ngIf="isLoading" class="flex justify-center py-12">
-  <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+  <div
+    class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"
+  ></div>
 </div>
 
-<div *ngIf="property && !isLoading" class="container mx-auto py-12 mt-12"> <!-- Added mt-12 here -->
-  <div class="flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0">
+<div *ngIf="property && !isLoading" class="container mx-auto py-12 mt-12">
+  <div
+    class="flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0"
+  >
     <!-- Property Image Gallery -->
-    <div class="md:w-1/2 space-y-4">
+    <div class="md:w-1/2 space-y-4" data-aos="fade-right">
       <div class="flex justify-center md:justify-start">
-        <img [src]="getImageUrl(property.images[0])" 
-             alt="property" 
-             class="w-full h-80 object-cover rounded-lg shadow-lg">
+        <img
+          [src]="getImageUrl(property.images[selectedImageIndex])"
+          alt="property"
+          class="w-full h-80 object-cover rounded-lg shadow-lg transition duration-300 ease-in-out"
+        />
       </div>
-      <div class="flex justify-center md:justify-start space-x-4 mt-4">
-        <img *ngFor="let img of property.images" 
-             [src]="getImageUrl(img)" 
-             alt="property" 
-             class="w-24 h-24 object-cover rounded-lg shadow-md">
+      <div
+        class="flex justify-center md:justify-start space-x-4 mt-4 overflow-x-auto py-2"
+      >
+        <img
+          *ngFor="let img of property.images; let i = index"
+          [src]="getImageUrl(img)"
+          alt="property thumbnail"
+          (click)="selectImage(i)"
+          [class.border-2]="i === selectedImageIndex"
+          [class.border-green-500]="i === selectedImageIndex"
+          [class.opacity-100]="i === selectedImageIndex"
+          [class.opacity-75]="i !== selectedImageIndex"
+          class="w-24 h-24 object-cover rounded-lg shadow-md cursor-pointer hover:opacity-100 transition duration-200 ease-in-out"
+        />
       </div>
     </div>
 
     <!-- Property Details -->
-    <div class="md:w-1/2 md:pl-8 mt-6 md:mt-0 space-y-4">
+    <div
+      class="md:w-1/2 md:pl-8 mt-6 md:mt-0 space-y-4"
+      data-aos="fade-left"
+      data-aos-delay="200"
+    >
       <h2 class="text-3xl font-extrabold text-gray-800">
         {{ formatPrice(property.price) }}
       </h2>
@@ -30,21 +48,28 @@
         {{ property.title }}
       </h3>
       <p class="text-gray-600 mt-4">
-        {{ property.address }}, {{ property.city }}, {{ property.state }} {{ property.zip_code }}
+        {{ property.address }}, {{ property.city }}, {{ property.state }}
+        {{ property.zip_code }}
       </p>
       <p class="text-gray-700 mt-4">
         {{ property.description }}
       </p>
 
       <!-- Property Features -->
-      <div class="mt-6 grid grid-cols-2 gap-4">
+      <div
+        class="mt-6 grid grid-cols-2 gap-4"
+        data-aos="fade-up"
+        data-aos-delay="400"
+      >
         <div class="flex items-center">
           <span class="text-gray-600 mr-2">Type:</span>
           <span class="font-medium capitalize">{{ property.type }}</span>
         </div>
         <div class="flex items-center">
           <span class="text-gray-600 mr-2">Listing Type:</span>
-          <span class="font-medium capitalize">{{ property.listing_type }}</span>
+          <span class="font-medium capitalize">{{
+            property.listing_type
+          }}</span>
         </div>
         <div class="flex items-center">
           <span class="text-gray-600 mr-2">Bedrooms:</span>
@@ -65,8 +90,11 @@
       </div>
 
       <!-- Contact Button -->
-      <div class="mt-8">
-        <button class="bg-green-600 px-6 py-4 rounded-full text-white font-semibold hover:bg-green-700 transition ease-in-out duration-200">
+      <div class="mt-8" data-aos="fade-up" data-aos-delay="600">
+        <button
+          (click)="openContactModal()"
+          class="bg-green-600 px-6 py-4 rounded-full text-white font-semibold hover:bg-green-700 transition ease-in-out duration-200"
+        >
           Contact for More Info
         </button>
       </div>
@@ -74,4 +102,111 @@
   </div>
 </div>
 
+<!-- Contact Modal -->
+<div
+  *ngIf="showContactModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+>
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md" data-aos="zoom-in">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-gray-800">
+          Contact {{ property.user?.name || "Owner" }}
+        </h3>
+        <button
+          (click)="closeContactModal()"
+          class="text-gray-500 hover:text-gray-700"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
 
+      <div *ngIf="!contactSuccess">
+        <p class="text-gray-600 mb-4">
+          Send a message to inquire about this property:
+        </p>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-2">Your Message</label>
+          <textarea
+            [(ngModel)]="contactMessage"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            rows="4"
+            placeholder="I'm interested in this property..."
+          ></textarea>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+          <button
+            (click)="closeContactModal()"
+            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition"
+          >
+            Cancel
+          </button>
+          <button
+            (click)="sendContactMessage()"
+            [disabled]="!contactMessage.trim() || isSendingMessage"
+            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-green-400 transition flex items-center"
+          >
+            <span *ngIf="!isSendingMessage">Send Message</span>
+            <span *ngIf="isSendingMessage" class="flex items-center">
+              <svg
+                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Sending...
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="contactSuccess" class="text-center py-8">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-16 w-16 text-green-500 mx-auto mb-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+        <h4 class="text-xl font-bold text-gray-800 mb-2">Message Sent!</h4>
+        <p class="text-gray-600">The owner will contact you soon.</p>
+      </div>
+    </div>
+  </div>
+</div>

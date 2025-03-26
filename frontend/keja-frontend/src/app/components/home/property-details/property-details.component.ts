@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PropertyService } from 'src/app/services/properties/property.service';
+import AOS from 'aos';
 
 @Component({
   selector: 'app-property-details',
@@ -11,6 +12,11 @@ export class PropertyDetailsComponent implements OnInit {
   propertyId: string | null = null;
   property: any;
   isLoading = true;
+  selectedImageIndex = 0;
+  showContactModal = false;
+  contactMessage = '';
+  isSendingMessage = false;
+  contactSuccess = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -18,6 +24,12 @@ export class PropertyDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    AOS.init({
+      duration: 800,
+      easing: 'ease-in-out',
+      once: true
+    });
+    
     this.propertyId = this.route.snapshot.paramMap.get('id');
     if (this.propertyId) {
       this.loadProperty(this.propertyId);
@@ -39,12 +51,42 @@ export class PropertyDetailsComponent implements OnInit {
   }
 
   getImageUrl(imagePath: string): string {
-    return imagePath 
-      ? `http://127.0.0.1:8000/storage/properties/${imagePath}`
-      : 'assets/property.svg';
+    return imagePath || 'assets/property.svg';
   }
 
   formatPrice(price: string): string {
     return `KSh ${parseFloat(price).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+  }
+
+  selectImage(index: number): void {
+    this.selectedImageIndex = index;
+  }
+
+  openContactModal(): void {
+    this.showContactModal = true;
+    this.contactSuccess = false;
+    this.contactMessage = '';
+  }
+
+  closeContactModal(): void {
+    this.showContactModal = false;
+  }
+
+  sendContactMessage(): void {
+    if (!this.contactMessage.trim()) return;
+    
+    this.isSendingMessage = true;
+    
+    // In a real app, you would call your backend service here
+    // For now, we'll simulate the API call
+    setTimeout(() => {
+      this.isSendingMessage = false;
+      this.contactSuccess = true;
+      
+      // Hide success message after 3 seconds and close modal
+      setTimeout(() => {
+        this.showContactModal = false;
+      }, 3000);
+    }, 1500);
   }
 }

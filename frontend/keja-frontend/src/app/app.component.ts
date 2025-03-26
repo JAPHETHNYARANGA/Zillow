@@ -17,7 +17,7 @@ export class AppComponent {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(event => {
         // Define routes that shouldn't show the header and footer
-        const noHeaderFooterRoutes = ['login', 'register', 'forgot-password'];
+        const noHeaderFooterRoutes = ['login', 'register', 'forgot-pass'];
         const currentRoute = this.router.url.split('/')[1];
 
         // Check if the current route should not show header and footer
