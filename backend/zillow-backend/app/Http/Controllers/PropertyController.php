@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests; // Add this
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+
 
 class PropertyController extends Controller
 {
@@ -15,16 +18,31 @@ class PropertyController extends Controller
     /**
      * Display a listing of available properties.
      */
-    public function index(Request $request)
+    public function fetchProperties(Request $request)
     {
-        $properties = Property::query()
+        try{
+            $properties = Property::query()
             ->where('status', 'available')
             ->orderBy('is_sponsored', 'desc')
             ->orderBy('created_at', 'desc')
             ->with('user')
             ->paginate(10);
 
-        return response()->json($properties);
+            return response()->json($properties);
+
+        }catch (\Exception $e) {
+            Log::error('Login failed', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ]);
+
+            return response()->json([
+                'message' => 'An error occurred while logging in',
+                'error' => $e->getMessage(),
+                'status' => 'error',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR); // 500
+        }
+       
     }
 
     /**
@@ -32,59 +50,96 @@ class PropertyController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'type' => 'required|in:house,apartment,condo,land,commercial',
-            'listing_type' => 'required|in:sale,rent',
-            'price' => 'required|numeric|min:0',
-            'address' => 'required|string|max:255',
-            'city' => 'required|string|max:100',
-            'state' => 'required|string|size:2',
-            'zip_code' => 'required|string|max:10',
-            'bedrooms' => 'nullable|integer|min:0',
-            'bathrooms' => 'nullable|integer|min:0',
-            'square_feet' => 'nullable|integer|min:0',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
-            'furnished' => 'required|in:Yes,No',
-            'lease_term_months' => 'nullable|integer|min:1',
-            'amenities' => 'nullable|array',
-            'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        try{
 
-        $user = Auth::user();
-        if (!$user->hasAnyRole(['seller', 'agent', 'broker', 'homeowner'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        $imagePaths = [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('properties', 'public');
-                $imagePaths[] = basename($path);
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'type' => 'required|in:house,apartment,condo,land,commercial',
+                'listing_type' => 'required|in:sale,rent',
+                'price' => 'required|numeric|min:0',
+                'address' => 'required|string|max:255',
+                'city' => 'required|string|max:100',
+                'state' => 'required|string|size:2',
+                'zip_code' => 'required|string|max:10',
+                'bedrooms' => 'nullable|integer|min:0',
+                'bathrooms' => 'nullable|integer|min:0',
+                'square_feet' => 'nullable|integer|min:0',
+                'latitude' => 'nullable|numeric|between:-90,90',
+                'longitude' => 'nullable|numeric|between:-180,180',
+                'furnished' => 'required|in:Yes,No',
+                'lease_term_months' => 'nullable|integer|min:1',
+                'amenities' => 'nullable|array',
+                'images' => 'nullable|array',
+                'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+    
+            $user = Auth::user();
+            if (!$user->hasAnyRole(['seller', 'agent', 'broker', 'homeowner','admin'])) {
+                return response()->json(['message' => 'Unauthorized'], 403);
             }
-        }
-        $validated['images'] = $imagePaths;
+    
+            $imagePaths = [];
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('properties', 'public');
+                    $imagePaths[] = basename($path);
+                }
+            }
+            $validated['images'] = $imagePaths;
+    
+            $property = $user->properties()->create($validated);
+            $property->images = array_map(fn($image) => Storage::url('properties/' . $image), $property->images);
+            return response()->json($property, 201);
 
-        $property = $user->properties()->create($validated);
-        $property->images = array_map(fn($image) => Storage::url('properties/' . $image), $property->images);
-        return response()->json($property, 201);
+        }catch (\Exception $e) {
+            Log::error('Login failed', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ]);
+
+            return response()->json([
+                'message' => 'An error occurred while logging in',
+                'error' => $e->getMessage(),
+                'status' => 'error',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR); // 500
+        }
+      
     }
 
     /**
      * Display the specified property.
      */
-    public function show(Property $property)
+    public function fetchIndividualProperty($id)
     {
-        if ($property->status !== 'available' && !Auth::user()->can('update', $property)) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        try {
+            // Fetch the property by ID
+            $property = Property::where('status', 'available')->find($id);
 
-        $property->load('user');
-        return response()->json($property);
+            // If the property doesn't exist, return an error message
+            if (!$property) {
+                return response()->json(['message' => 'Property not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            // Optionally include related user details, e.g. user who owns the property
+            $property->load('user');
+            
+            return response()->json($property);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching individual property', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ]);
+
+            return response()->json([
+                'message' => 'An error occurred while fetching the property',
+                'error' => $e->getMessage(),
+                'status' => 'error',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR); // 500
+        }
     }
+
 
     /**
      * Update the specified property in storage.
@@ -102,7 +157,7 @@ class PropertyController extends Controller
             'price' => 'sometimes|numeric|min:0',
             'address' => 'sometimes|string|max:255',
             'city' => 'sometimes|string|max:100',
-            'state' => 'sometimes|string|size:2',
+            'state' => 'required',
             'zip_code' => 'sometimes|string|max:10',
             'bedrooms' => 'nullable|integer|min:0',
             'bathrooms' => 'nullable|integer|min:0',

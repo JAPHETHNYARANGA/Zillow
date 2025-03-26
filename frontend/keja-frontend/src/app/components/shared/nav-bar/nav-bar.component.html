@@ -11,8 +11,8 @@
         <div class="hidden md:flex space-x-8 text-white">
           <a href="#home" class="hover:text-green-500 transition duration-300">Home</a>
           <a href="#properties" class="hover:text-green-500 transition duration-300">Properties</a>
-          <a href="#about" class="hover:text-green-500 transition duration-300">About Us</a>
-          <a href="#contact" class="hover:text-green-500 transition duration-300">Contact</a>
+          <a (click)="navigateToAbout()" class="hover:text-green-500 transition duration-300">About Us</a>
+          <a (click)="navigateToContact()" class="hover:text-green-500 transition duration-300">Contact</a>
         </div>
   
         <!-- Mobile Menu Button -->
@@ -35,8 +35,8 @@
     <div *ngIf="isMenuOpen" class="md:hidden absolute top-16 left-0 right-0 bg-gray-800 text-white text-center py-4 space-y-4">
       <a  class="block hover:text-green-500 transition duration-300">Home</a>
       <a  class="block hover:text-green-500 transition duration-300">Properties</a>
-      <a  class="block hover:text-green-500 transition duration-300">About Us</a>
-      <a  class="block hover:text-green-500 transition duration-300">Contact</a>
+      <a  (click)="navigateToAbout()" class="block hover:text-green-500 transition duration-300">About Us</a>
+      <a  (click)="navigateToContact()" class="block hover:text-green-500 transition duration-300">Contact</a>
     </div>
   </nav>
   

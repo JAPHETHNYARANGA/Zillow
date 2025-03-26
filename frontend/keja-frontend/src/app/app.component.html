@@ -1,1 +1,6 @@
+<!-- Conditionally display the nav bar and footer based on the route -->
+<app-nav-bar *ngIf="showHeaderAndFooter"></app-nav-bar>
+
 <router-outlet></router-outlet>
+
+<app-footer *ngIf="showHeaderAndFooter"></app-footer>

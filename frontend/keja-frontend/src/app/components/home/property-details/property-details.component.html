@@ -1,34 +1,67 @@
-<app-nav-bar></app-nav-bar>
 
-<div *ngIf="property" class="container mx-auto py-12">
-  <div class="flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0" data-aos="fade-up">
+<div class="spacer"></div>
+<div *ngIf="isLoading" class="flex justify-center py-12">
+  <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+</div>
+
+<div *ngIf="property && !isLoading" class="container mx-auto py-12 mt-12"> <!-- Added mt-12 here -->
+  <div class="flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0">
     <!-- Property Image Gallery -->
     <div class="md:w-1/2 space-y-4">
       <div class="flex justify-center md:justify-start">
-        <!-- Main Property Image -->
-        <img [src]="property.image" alt="property" class="w-full h-80 object-cover rounded-lg shadow-lg" data-aos="fade-right" />
+        <img [src]="getImageUrl(property.images[0])" 
+             alt="property" 
+             class="w-full h-80 object-cover rounded-lg shadow-lg">
       </div>
       <div class="flex justify-center md:justify-start space-x-4 mt-4">
-        <!-- Additional Images -->
-        <img *ngFor="let img of property.additionalImages" [src]="img" alt="property" class="w-24 h-24 object-cover rounded-lg shadow-md" data-aos="fade-left" />
+        <img *ngFor="let img of property.images" 
+             [src]="getImageUrl(img)" 
+             alt="property" 
+             class="w-24 h-24 object-cover rounded-lg shadow-md">
       </div>
     </div>
 
     <!-- Property Details -->
-    <div class="md:w-1/2 md:pl-8 mt-6 md:mt-0 space-y-4" data-aos="fade-left">
-      <h2 class="text-3xl font-extrabold text-gray-800">{{ property.price }}</h2>
-      <p class="text-gray-600 mt-4">{{ property.details }}</p>
-      <p class="text-gray-700 mt-4">{{ property.description }}</p>
+    <div class="md:w-1/2 md:pl-8 mt-6 md:mt-0 space-y-4">
+      <h2 class="text-3xl font-extrabold text-gray-800">
+        {{ formatPrice(property.price) }}
+      </h2>
+      <h3 class="text-2xl font-semibold text-gray-700">
+        {{ property.title }}
+      </h3>
+      <p class="text-gray-600 mt-4">
+        {{ property.address }}, {{ property.city }}, {{ property.state }} {{ property.zip_code }}
+      </p>
+      <p class="text-gray-700 mt-4">
+        {{ property.description }}
+      </p>
 
-      <!-- Add more info section -->
-      <div class="mt-6">
-        <h3 class="text-2xl font-semibold text-gray-800">Additional Details</h3>
-        <ul class="list-disc list-inside mt-4 space-y-2">
-          <li><strong>Area:</strong> {{ property.area }} sqft</li>
-          <li><strong>Bedrooms:</strong> {{ property.bedrooms }}</li>
-          <li><strong>Bathrooms:</strong> {{ property.bathrooms }}</li>
-          <li><strong>Year Built:</strong> {{ property.yearBuilt }}</li>
-        </ul>
+      <!-- Property Features -->
+      <div class="mt-6 grid grid-cols-2 gap-4">
+        <div class="flex items-center">
+          <span class="text-gray-600 mr-2">Type:</span>
+          <span class="font-medium capitalize">{{ property.type }}</span>
+        </div>
+        <div class="flex items-center">
+          <span class="text-gray-600 mr-2">Listing Type:</span>
+          <span class="font-medium capitalize">{{ property.listing_type }}</span>
+        </div>
+        <div class="flex items-center">
+          <span class="text-gray-600 mr-2">Bedrooms:</span>
+          <span class="font-medium">{{ property.bedrooms }}</span>
+        </div>
+        <div class="flex items-center">
+          <span class="text-gray-600 mr-2">Bathrooms:</span>
+          <span class="font-medium">{{ property.bathrooms }}</span>
+        </div>
+        <div class="flex items-center">
+          <span class="text-gray-600 mr-2">Square Feet:</span>
+          <span class="font-medium">{{ property.square_feet }}</span>
+        </div>
+        <div class="flex items-center">
+          <span class="text-gray-600 mr-2">Furnished:</span>
+          <span class="font-medium">{{ property.furnished }}</span>
+        </div>
       </div>
 
       <!-- Contact Button -->
@@ -41,4 +74,4 @@
   </div>
 </div>
 
-<app-footer></app-footer>
+

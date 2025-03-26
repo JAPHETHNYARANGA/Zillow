@@ -13,6 +13,8 @@ import { LoginComponent } from './components/authentication/login/login.componen
 import { HttpClientModule } from '@angular/common/http';
 import { HomepageComponent } from './components/home/homepage/homepage.component';
 import { PropertyDetailsComponent } from './components/home/property-details/property-details.component';
+import { ContactUsComponent } from './components/shared/contact-us/contact-us.component';
+import { AboutUsComponent } from './components/shared/about-us/about-us.component';
 
 
 @NgModule({
@@ -24,7 +26,9 @@ import { PropertyDetailsComponent } from './components/home/property-details/pro
     NavBarComponent,
     FooterComponent,
     HomepageComponent,
-    PropertyDetailsComponent
+    PropertyDetailsComponent,
+    ContactUsComponent,
+    AboutUsComponent
   ],
   imports: [
     BrowserModule,

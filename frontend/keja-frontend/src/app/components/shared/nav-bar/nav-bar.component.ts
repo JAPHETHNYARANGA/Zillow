@@ -33,11 +33,18 @@ export class NavBarComponent implements OnInit {
     this.isAuthenticated = !!token;  // If token exists, user is authenticated
   }
 
+  navigateToContact(){
+    this.router.navigate(['contact']);
+  }
+  navigateToAbout(){
+    this.router.navigate(['about']);
+  }
+
   // Logout method
   logout(): void {
     this.authService.logout();  // Remove token from localStorage
     this.isAuthenticated = false;  // Update authentication status
-    this.router.navigate(['/login']);  // Redirect to login page
+    this.router.navigate(['']);  // Redirect to login page
   }
 
   // Login method (redirect to the login page)

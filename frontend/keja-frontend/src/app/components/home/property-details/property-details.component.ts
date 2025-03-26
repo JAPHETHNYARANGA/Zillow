@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { PropertyService } from 'src/app/services/properties/property.service';
 
 @Component({
   selector: 'app-property-details',
@@ -9,34 +10,41 @@ import { ActivatedRoute } from '@angular/router';
 export class PropertyDetailsComponent implements OnInit {
   propertyId: string | null = null;
   property: any;
+  isLoading = true;
 
-  // Sample property data (for demonstration purposes)
-  properties = [
-    {
-      id: '1',
-      image: 'assets/property.svg',
-      price: 'Kesh 2,259,000',
-      details: '3 bed | 2.5 bath | 1,537 sqft',
-      description: 'Beautiful modern house located in a quiet neighborhood with a garden and pool.',
-      additionalImages: [
-        'assets/property.svg',
-        'assets/property.svg',
-        'assets/property.svg'
-      ],
-      area: '1,537',
-      bedrooms: '3',
-      bathrooms: '2.5',
-      yearBuilt: '2021'
-    },
-    // Add more properties here
-  ];
-
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private propertyService: PropertyService
+  ) {}
 
   ngOnInit(): void {
     this.propertyId = this.route.snapshot.paramMap.get('id');
     if (this.propertyId) {
-      this.property = this.properties.find(p => p.id === this.propertyId);
+      this.loadProperty(this.propertyId);
     }
+  }
+
+  loadProperty(id: string): void {
+    this.isLoading = true;
+    this.propertyService.getPropertyById(+id).subscribe({
+      next: (response) => {
+        this.property = response;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading property:', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  getImageUrl(imagePath: string): string {
+    return imagePath 
+      ? `http://127.0.0.1:8000/storage/properties/${imagePath}`
+      : 'assets/property.svg';
+  }
+
+  formatPrice(price: string): string {
+    return `KSh ${parseFloat(price).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
   }
 }

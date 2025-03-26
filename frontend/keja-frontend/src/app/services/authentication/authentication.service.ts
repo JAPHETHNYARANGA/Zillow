@@ -16,15 +16,25 @@ export class AuthenticationService {
   }
 
   // Login user
-  login(email: string, password: string): Observable<any> {
-    return this.http.post('http://127.0.0.1:8000/api/login', { email, password }).pipe(
-      // Store token on login success
-      tap((response: any) => {
-        if (response && response.access_token) {
-          this.storeToken(response.access_token);  // Store the access token
-        }
-      })
-    );
+  login(email: string, password: string) {
+    return this.http.post(`http://127.0.0.1:8000/api/login`, { email, password })
+      .pipe(
+        tap((response: any) => {
+          // Store the token securely
+          if (response.access_token) {  // Change from 'response.token' to 'response.access_token'
+            localStorage.setItem('auth_token', response.access_token);
+          }
+        })
+      );
+  }
+  
+
+  getToken(): string | null {
+    return localStorage.getItem('auth_token');
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.getToken();
   }
 
   // Forgot password request
