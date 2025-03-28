@@ -10,6 +10,12 @@ import { FooterComponent } from './components/shared/footer/footer.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LoginComponent } from './components/authentication/login/login.component';
+import { HttpClientModule } from '@angular/common/http';
+import { HomepageComponent } from './components/home/homepage/homepage.component';
+import { PropertyDetailsComponent } from './components/home/property-details/property-details.component';
+import { ContactUsComponent } from './components/shared/contact-us/contact-us.component';
+import { AboutUsComponent } from './components/shared/about-us/about-us.component';
+
 
 @NgModule({
   declarations: [
@@ -18,14 +24,19 @@ import { LoginComponent } from './components/authentication/login/login.componen
     RegisterComponent,
     ForgotPasswordComponent,
     NavBarComponent,
-    FooterComponent
+    FooterComponent,
+    HomepageComponent,
+    PropertyDetailsComponent,
+    ContactUsComponent,
+    AboutUsComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     CommonModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

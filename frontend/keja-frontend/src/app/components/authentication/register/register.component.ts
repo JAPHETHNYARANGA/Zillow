@@ -12,8 +12,16 @@ import { AuthenticationService } from 'src/app/services/authentication/authentic
 })
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
+  isLoading = false;
+  showNotification = false;
+  notificationMessage = '';
+  notificationType: 'success' | 'error' = 'success';
 
-  constructor(private fb: FormBuilder, private router: Router, private authService: AuthenticationService) {}
+  constructor(
+    private fb: FormBuilder, 
+    private router: Router, 
+    private authService: AuthenticationService
+  ) {}
 
   ngOnInit(): void {
     AOS.init();
@@ -34,18 +42,38 @@ export class RegisterComponent implements OnInit {
     return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
+  showNotificationMessage(message: string, type: 'success' | 'error') {
+    this.notificationMessage = message;
+    this.notificationType = type;
+    this.showNotification = true;
+    setTimeout(() => {
+      this.showNotification = false;
+    }, 5000);
+  }
+
   onSubmit(): void {
-    if (this.registerForm.valid) {
-      this.authService.register(this.registerForm.value).subscribe(
-        (response: any) => {
-          console.log('Registration successful', response);
-          this.router.navigate(['/login']);
-        },
-        (error: any) => {
-          console.error('Registration error', error);
-        }
-      );
+    if (this.registerForm.invalid) {
+      this.showNotificationMessage('Please fill in all fields correctly', 'error');
+      return;
     }
+
+    this.isLoading = true;
+    
+    this.authService.register(this.registerForm.value).subscribe({
+      next: (response: any) => {
+        this.isLoading = false;
+        this.showNotificationMessage('Registration successful! Redirecting...', 'success');
+        setTimeout(() => {
+          this.router.navigate(['']);
+        }, 1500);
+      },
+      error: (error: any) => {
+        this.isLoading = false;
+        const errorMessage = error.error?.message || 'Registration failed. Please try again.';
+        this.showNotificationMessage(errorMessage, 'error');
+        console.error('Registration error', error);
+      }
+    });
   }
 
   navigateToLogin() {

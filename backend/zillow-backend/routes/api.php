@@ -12,10 +12,13 @@ Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('properties', PropertyController::class);
+    
  
     Route::get('search', [SearchController::class, 'search']);
     Route::get('neighborhood-insights', [SearchController::class, 'neighborhoodInsights']);
     Route::apiResource('valuations', ValuationController::class);
-   
+    Route::apiResource('properties', PropertyController::class);
 });
+
+Route::get('fetch_properties', [PropertyController::class,'fetchProperties']);
+Route::get('fetch_property/{id}', [PropertyController::class,'fetchIndividualProperty']);
